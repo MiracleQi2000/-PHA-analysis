@@ -48,14 +48,14 @@ JOIN shenzhen_20190501_activePHA sa ON saup.lcode = sa.lcode -- original PHA
 JOIN shenzhen_people_phoneprice_10monthavg_level sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics
 GROUP bY saup.date, sa.lcode, sp.phoneprice_level
 
-
--- 把user总数少于50的去掉
+--- 把user总数少于50的去掉
 DROP TABLE IF EXISTS shenzhen_APP_deduplicate_userlargerthan50;
 CREATE TABLE shenzhen_APP_deduplicate_userlargerthan50 AS
 SELECT 
     lcode,
     COUNT(DISTINCT pha_qui) AS lcode_usernum
-FROM shenzhen_APP_deduplicate
+FROM shenzhen_APP_deduplicate sad
+WHERE sad.date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
 GROUP BY lcode
 HAVING COUNT(DISTINCT pha_qui) > 50
 
@@ -67,8 +67,9 @@ SELECT
     sadu.lcode,
     date,
     ROW_NUMBER() OVER (PARTITION BY sadu.lcode ORDER BY date) AS appearorder
-FROM shenzhen_APP_deduplicate sad
-JOIN shenzhen_APP_deduplicate_userlargerthan50 sadu ON sadu.lcode = sad.lcode
+FROM shenzhen_APP_deduplicate sad -- all APP
+JOIN shenzhen_APP_deduplicate_userlargerthan50 sadu ON sadu.lcode = sad.lcode -- user num > 50
+JOIN shenzhen_otherAPPuse so ON so.lcode = sad.lcode -- other APP list
 WHERE date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
 
 
@@ -79,55 +80,13 @@ SELECT
     date AS createdtime
 FROM shenzhen_otherAPP_createdtime
 WHERE appearorder = 1  -- 只选择每个 lcode 的首次出现
-ORDER BY createdtime;  -- 按日期排序
+ORDER BY createdtime  -- 按日期排序
+
 
 SELECT createdtime,
        COUNT(*) as otherAPP_num
 FROM shenzhen_otherapp_createtime_largerthan50
 GROUP BY createdtime
-
-
--- 看一下user number小于等于50的Other APP数量
-DROP TABLE IF EXISTS shenzhen_APP_deduplicate_userlessthan50;
-CREATE TABLE shenzhen_APP_deduplicate_userlessthan50 AS
-SELECT 
-    lcode,
-    COUNT(DISTINCT pha_qui) AS lcode_usernum
-FROM shenzhen_APP_deduplicate
-GROUP BY lcode
-HAVING COUNT(DISTINCT pha_qui) <= 50
-
-
--- newly created Other APP
-DROP TABLE IF EXISTS shenzhen_otherAPP_createdtime_userlessthan50;
-CREATE TABLE shenzhen_otherAPP_createdtime_userlessthan50 AS
-SELECT
-    sadu.lcode,
-    date,
-    ROW_NUMBER() OVER (PARTITION BY sadu.lcode ORDER BY date) AS appearorder
-FROM shenzhen_APP_deduplicate sad
-JOIN shenzhen_APP_deduplicate_userlessthan50 sadu ON sadu.lcode = sad.lcode
-WHERE date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
-
-
-DROP TABLE IF EXISTS shenzhen_otherapp_createtime_lessthan50;
-CREATE TABLE shenzhen_otherapp_createtime_lessthan50 AS
-SELECT
-    lcode,
-    date AS createdtime
-FROM shenzhen_otherAPP_createdtime_userlessthan50
-WHERE appearorder = 1  -- 只选择每个 lcode 的首次出现
-ORDER BY createdtime;  -- 按日期排序
-
-SELECT createdtime,
-       COUNT(*) as otherAPP_num
-FROM shenzhen_otherapp_createtime_lessthan50
-GROUP BY createdtime
-
-SELECT date, count(DISTINCT lcode) as appnum
-FROM shenzhen_APP_deduplicate
-WHERE date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
-GROUP BY date
 
 
 
@@ -251,6 +210,7 @@ GROUP bY saup.date, sa.lcode
 
 
 
+
 -- original other APP age
 SELECT
     saup.date,
@@ -264,12 +224,11 @@ GROUP BY saup.date, so.lcode  -- 按日期和 lcode 分组
 -- 违规跑不出来
 
 -- original other APP age
--- originalpha_user_num变量名没有修改，后面都用了这个
 SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -282,7 +241,7 @@ GROUP BY saup.date, so.lcode, suf.age
 
 SELECT saup.date,
        so.lcode,
-       AVG(gender_num) AS female_pro
+       AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics age已处理
@@ -294,12 +253,13 @@ GROUP bY saup.date, so.lcode
 -- original other APP income
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
 WHERE so.createdtime = 20190501 -- original other APP
 GROUP bY saup.date, so.lcode
+
 
 
 -- other APP age
@@ -308,7 +268,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -322,7 +282,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -336,7 +296,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -350,7 +310,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -364,7 +324,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -378,7 +338,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -392,7 +352,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -406,7 +366,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -420,7 +380,7 @@ SELECT
     saup.date,
     so.lcode,
     suf.age,
-    COUNT(*) as originalpha_user_num
+    COUNT(*) as original_other_user_num
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered suf ON suf.PHA_qui = saup.PHA_qui -- 使用20190501的demographics，同时筛选出567101人
@@ -430,14 +390,11 @@ AND age IN ('05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15')
 GROUP BY saup.date, so.lcode, suf.age
 
 
-
-
-
 -- other APP gender
 -- 20191101
 SELECT saup.date,
        so.lcode,
-       AVG(gender_num) AS female_pro
+       AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -450,7 +407,7 @@ GROUP bY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -463,7 +420,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -476,7 +433,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -489,7 +446,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -502,7 +459,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -516,7 +473,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -528,7 +485,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -540,7 +497,7 @@ GROUP BY saup.date, so.lcode
 SELECT
     saup.date,
     so.lcode,
-    AVG(gender_num) AS female_pro
+    AVG(gender_num) AS original_other_female_pro
 FROM shenzhen_app_use_people_10month saup  -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode  -- original other APP 
 JOIN shenzhen_20190501_users_filtered_gendernum suf ON suf.PHA_qui = saup.PHA_qui  -- 20190501 demographics gender已处理
@@ -554,7 +511,7 @@ GROUP BY saup.date, so.lcode
 -- 20191101
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -566,7 +523,7 @@ GROUP bY saup.date, so.lcode
 -- 20200501
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -578,7 +535,7 @@ GROUP bY saup.date, so.lcode
 -- 20201101
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -590,7 +547,7 @@ GROUP bY saup.date, so.lcode
 -- 20210501
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -602,7 +559,7 @@ GROUP bY saup.date, so.lcode
 -- 20211101
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -614,7 +571,7 @@ GROUP bY saup.date, so.lcode
 -- 20220501
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -626,7 +583,7 @@ GROUP bY saup.date, so.lcode
 -- 20221101
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -638,7 +595,7 @@ GROUP bY saup.date, so.lcode
 -- 20230501
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
@@ -650,13 +607,14 @@ GROUP bY saup.date, so.lcode
 -- 20231101
 SELECT saup.date,
        so.lcode,
-       AVG(phoneprice_level_num) AS avg_income
+       AVG(phoneprice_level_num) AS original_other_avg_income
 FROM shenzhen_app_use_people_10month saup -- APP use
 JOIN shenzhen_otherapp_createtime_largerthan50 so ON saup.lcode = so.lcode -- original other APP 
 JOIN shenzhen_people_phoneprice_10monthavg_level_num sp on sp.PHA_qui = saup.PHA_qui -- phoneprice demographics income已处理
 WHERE so.createdtime = 20231101
 AND saup.date = 20231101
 GROUP bY saup.date, so.lcode
+
 
 
 

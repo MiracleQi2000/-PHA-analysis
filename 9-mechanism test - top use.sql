@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS shenzhen_totaltime_use_10month_allapp;
+DROP TABLE IF EXISTS shenzhen_totaltraffic_use_10month_allapp
+
+
 -- 1010
 
 -- 每个group使用的TOP50 PHA & APP
@@ -85,6 +89,8 @@ JOIN shenzhen_people_phoneprice_10monthavg_level sp ON sp. PHA_qui = saup.PHA_qu
 WHERE saup.date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
 GROUP BY saup.date, sp.phoneprice_level, pad.PHA_APP
 ORDER BY saup.date, sp.phoneprice_level, PHA_usernum_income
+
+
 
 
 -- other APP 的使用总人数
@@ -403,4 +409,6 @@ JOIN shenzhen_people_phoneprice_10monthavg_level sp ON sp. PHA_qui = saup.PHA_qu
 WHERE saup.date = 20231101
 GROUP BY saup.date, sp.phoneprice_level, so.lcode
 ORDER BY saup.date, sp.phoneprice_level, Other_usernum_income20231101
+
+
 

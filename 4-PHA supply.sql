@@ -1143,6 +1143,7 @@ FROM shenzhen_avgtime_use_eachmonth
 
 
 -- 所有APP 每个时间点的traffic总量
+-- 内存不足暂时清除该表
 DROP TABLE IF EXISTS shenzhen_totaltraffic_use_10month_allAPP;
 CREATE TABLE shenzhen_totaltraffic_use_10month_allAPP AS
 SELECT saupm.pha_qui,
@@ -1183,6 +1184,7 @@ FROM shenzhen_avgtraffic_use_eachmonth_allAPP
 
 
 -- Time
+-- 内存不足暂时清除该表
 DROP TABLE IF EXISTS shenzhen_totaltime_use_10month_allAPP;
 CREATE TABLE shenzhen_totaltime_use_10month_allAPP AS
 SELECT saupm.pha_qui,
