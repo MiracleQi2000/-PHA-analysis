@@ -58,9 +58,6 @@ FROM shenzhen_people_phoneprice_10monthavg
 
 
 
-
--- abandoned ×
-
 -- original PHA age
 SELECT saup.date,
        sa.lcode,
@@ -293,11 +290,17 @@ GROUP bY saup.date, ncp.pha, phoneprice_level
 DROP TABLE IF EXISTS shenzhen_otherAPPuse;
 create table shenzhen_otherAPPuse AS
 SELECT DISTINCT saup.lcode
-FROM shenzhen_app_use_people_10month saup
+FROM shenzhen_app_use_people_10month saup -- APP use of all people
 JOIN shenzhen_app_use_filtered sauf ON sauf.PHA_qui = saup.PHA_qui -- 567101 population
-LEFT JOIN PHA_APPlist_distinc
+LEFT JOIN PHA_APPlist_distinct b ON saup.lcode = b.PHA_APP -- PHA list
+WHERE b.PHA_APP IS NULL
 
 
+SELECT lcode
+FROM shenzhen_otherAPPuse
+
+
+-- abandoned ×
 
 -- other APP age
 -- 文件太大跑不出来，分组
