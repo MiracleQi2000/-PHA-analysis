@@ -292,10 +292,11 @@ GROUP bY saup.date, ncp.pha, phoneprice_level
 -- other APP list
 DROP TABLE IF EXISTS shenzhen_otherAPPuse;
 create table shenzhen_otherAPPuse AS
-SELECT DISTINCT a.lcode
-FROM shenzhen_app_use_people_10month a
-LEFT JOIN PHA_APPlist_distinct b ON a.lcode = b.PHA_APP
-WHERE b.PHA_APP IS NULL
+SELECT DISTINCT saup.lcode
+FROM shenzhen_app_use_people_10month saup
+JOIN shenzhen_app_use_filtered sauf ON sauf.PHA_qui = saup.PHA_qui -- 567101 population
+LEFT JOIN PHA_APPlist_distinc
+
 
 
 -- other APP age
