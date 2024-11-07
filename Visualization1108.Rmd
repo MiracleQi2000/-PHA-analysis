@@ -1,0 +1,1425 @@
+---
+title: "Visualization"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "light"
+    downcute_theme: "default"
+---
+
+```{r warning = FALSE}
+library(ggplot2)
+library(lubridate)
+library(scales)
+```
+* Figure 1-b c
+```{r}
+library(ggplot2)
+
+timepoint <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+avg_app <- c(51.61, 53.76, 42.72, 82.55, 100.64, 95.29, 89.13, 87.27, 106.73, 95.17)
+avg_PHA <- c(10.18, 10.66,10.13, 19.09, 17.34, 16.83, 15.29, 15.72,	19.54, 17.88)
+fraction <- c(0.1972, 0.1983, 0.2371,	0.2313,	0.1723,	0.1766,	0.1715,	0.1802,	0.1831,	0.1878)
+
+timetrend_app <- data.frame(timepoint, avg_app, avg_PHA, fraction)
+
+# 不要18岁以下的， 未知的
+
+avg_app <- c(51.81,	53.98,	42.93,	82.88,	101.03,	95.61,	89.46,	87.57,	107.07,	95.39)
+avg_PHA <- c(10.20,	10.69,	10.16,	19.16,	17.41,	16.89,	15.34,	15.78,	19.61,	17.92)
+timetrend_app <- data.frame(timepoint, avg_app, avg_PHA)
+
+
+options(repr.plot.width = 5, repr.plot.height = 3)
+
+p1b <- ggplot(data = timetrend_app) +
+    geom_line(mapping = aes(x = timepoint, y = avg_app, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = avg_app, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Average APP Use Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    scale_y_continuous(limits = c(0, 120), breaks = seq(0, 120, 30)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    coord_fixed(0.05)
+p1b
+
+p1c <- ggplot(data = timetrend_app) +
+    geom_line(mapping = aes(x = timepoint, y = avg_PHA, group = 1, color = 'PHA'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = avg_PHA, group = 1, color = 'PHA'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c( "PHA Use")) +
+    labs(x = "Time", y = "Average PHA Use Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    scale_y_continuous(limits = c(0, 30), breaks = seq(0, 30, 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    coord_fixed(0.2)
+p1c
+
+
+pro <- ggplot(data = timetrend_app) +
+    geom_line(mapping = aes(x = timepoint, y = fraction, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = fraction, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "PHA/Total Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0.15, 0.25), breaks = seq(0.15, 0.25, 0.05)) +
+    theme(legend.position = "none") +
+    coord_fixed(55)
+pro
+
+
+# extradite(gridExtra)
+# grid.arrange(p1b, p1c, ncol = 2, nrow = 1)
+
+
+```
+
+
+* Figure 1-a
+
+```{r}
+timepoint <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+
+total_traffic <- c(1613623451.00, 2138579721.00, 1157656479.00, 8584275699.00, 254288835385.04, 7645656002.34, 7188648157.82, 3818689897.35, 4914228065.81, 4096321894.22 )
+avg_traffic <- c(2845.39, 3771.07, 2041.36, 15137.12, 448401.32, 13482.00, 12676.13, 6733.70, 8665.53, 7223.27)
+total_time <- c(320850995191.00, 468502051982.00, 183890660936.00, 778227065498.00, 654974486581.64, 506880063150.80, 454861387214.82, 282718168278.23, 365984879085.49, 223172991191.45)
+avg_time <- c(565773.99, 826135.12, 324264.39, 1372290.06, 1154952.09, 893809.15, 802081.79, 498532.30, 645361.02, 393533.06)
+
+PHA_total_traffic <- c(763007816.00, 1049804846.00, 440311328.00, 2176681779.00, 119153700067.15, 2239581375.03, 2313742304.53, 1177954749.96, 1700364906.09, 1506314622.27 
+)
+PHA_avg_traffic <- c(1345.45, 1851.18, 776.42, 3838.26, 210110.19, 3949.18, 4079.95, 2077.15, 2998.35, 2656.17)
+PHA_total_time <- c(175541924889.00, 220968621040.00, 73875457615.00, 215106650571.00, 125451469672.69, 81733767486.30, 78214371703.24, 55925105592.90, 75778185162.68, 51492039871.60)
+PHA_avg_time <- c(309542.61, 389645.97, 130268.61, 379309.24, 221215.39, 144125.59, 137919.65, 98615.78, 133623.79, 90798.71)
+
+traffic_proportion <- c(0.4729, 0.4909, 0.3803, 0.2536, 0.4686, 0.2929, 0.3219, 0.3085,  0.3460, 0.3677)
+time_proportion <- c(0.5471, 0.4716, 0.4017, 0.2764, 0.1915, 0.1612, 0.1720, 0.1978, 0.2071, 0.2307)
+
+traffic_time_APP <- data.frame(timepoint, total_traffic, avg_traffic, total_time, avg_time,  PHA_total_traffic, PHA_avg_traffic, PHA_total_time, PHA_avg_time, traffic_proportion, time_proportion)
+
+summary(traffic_time_APP)
+options(repr.plot.width = 5, repr.plot.height = 3)
+
+p1a_APPtime <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = avg_time, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = avg_time, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Average Time Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.0000045) +
+    scale_y_continuous(limits = c(0, 1500000), breaks = seq(0, 1500000, 500000))
+
+options(scipen = 200)
+p1a_PHAtime <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_avg_time, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_avg_time, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Use")) +
+    labs(x = "Time", y = "Average Time Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000017) +
+    scale_y_continuous(limits = c(0, 400000), breaks = seq(0, 400000, 100000))
+
+
+p1a_time_pro <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = time_proportion, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = time_proportion, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "PHA/Total Time Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0, 0.6), breaks = seq(0, 0.6, 0.15)) +
+    theme(legend.position = "none") +
+    coord_fixed(10)
+
+
+p1a_APPtime
+p1a_PHAtime
+p1a_time_pro
+
+```
+* Figure 1-a
+
+```{r}
+
+summary(traffic_time_APP)
+
+p1a_APPtraffic <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = avg_traffic, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = avg_traffic, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Average Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000015) +
+    scale_y_continuous(limits = c(0, 450000), breaks = seq(0, 450000, 150000))
+
+
+options(scipen = 200)
+p1a_PHAtraffic <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_avg_traffic, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_avg_traffic, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Use")) +
+    labs(x = "Time", y = "Average Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000032)
+
+p1a_traffic_pro <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = traffic_proportion, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = traffic_proportion, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "PHA/Total Traffic Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0.2, 0.5), breaks = seq(0.2, 0.5, 0.1)) +
+    theme(legend.position = "none") +
+    coord_fixed(20)
+
+
+p1a_APPtraffic
+p1a_PHAtraffic
+p1a_traffic_pro
+
+
+
+# 画中位数
+total_traffic_median <- c(1405.62, 2073.26, 804.48, 9257.20, 190557.95, 7447.30, 6267.50, 2754.00, 
+5549.53, 3411.70)
+total_time_median <- c(433485.04, 631046.06, 209482.21, 1039346.61, 850690.72, 587600.27, 476065.13, 
+246362.80, 438863.38, 226482.68)
+
+
+PHA_total_traffic_median <- c(766.02, 1082.34, 325.32, 1847.00, 62152.31, 1827.91, 1687.09, 737.73, 1598.41, 1027.99)
+PHA_total_time_median <- c(236422.43, 302313.11, 80173.03, 312545.39, 159683.43, 92240.69, 83775.14, 49728.95, 92392.74, 51216.52)
+
+traffic_median_proportion <- c(0.5450, 0.5220, 0.4044, 0.1995, 0.3262, 0.2454, 0.2692, 0.2679, 0.2880, 0.3013)
+time_median_proportion <- c(0.5454, 0.4791, 0.3827, 0.3007, 0.1877, 0.1570, 0.1760, 0.2019, 0.2105, 0.2261 )
+
+
+traffic_time_APP <- data.frame(timepoint, total_traffic, avg_traffic, total_time, avg_time,  PHA_total_traffic, PHA_avg_traffic, PHA_total_time, PHA_avg_time, traffic_proportion, time_proportion, total_traffic_median, PHA_total_traffic_median, traffic_median_proportion, total_time_median, PHA_total_time_median, time_median_proportion)
+
+
+summary(traffic_time_APP$time_median_proportion)
+
+
+
+# traffic median
+
+p1a_APPtraffic_median <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = total_traffic_median, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = total_traffic_median, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Median Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000035)
+
+
+p1a_PHAtraffic_median <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_total_traffic_median, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_total_traffic_median, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Use")) +
+    labs(x = "Time", y = "Median Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.00011)
+
+
+p1a_traffic_median_pro <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = traffic_median_proportion, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = traffic_median_proportion, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "Median PHA/Total Traffic Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0.19, 0.55)) +
+    theme(legend.position = "none") +
+    coord_fixed(20)
+
+p1a_traffic_median_pro
+p1a_APPtraffic_median
+p1a_PHAtraffic_median
+
+
+
+# time median
+p1a_APPtime_median <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = total_time_median, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = total_time_median, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Median Time Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000008)
+
+
+p1a_PHAtime_median <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_total_time_median, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_total_time_median, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Use")) +
+    labs(x = "Time", y = "Median Time Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000025)
+
+
+p1a_time_median_pro <- ggplot(data = traffic_time_APP) +
+    geom_line(mapping = aes(x = timepoint, y = time_median_proportion, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = time_median_proportion, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "Median PHA/Total Time Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0.15, 0.55)) +
+    theme(legend.position = "none") +
+    coord_fixed(17)
+
+
+p1a_APPtime_median
+p1a_PHAtime_median
+p1a_time_median_pro
+
+summary(traffic_time_APP$traffic_median_proportion)
+
+```
+* Figure 1-a
+
+```{r}
+trafficgroup <- c("Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "Total APP Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use", "PHA Use")
+trafficnum <- c(2845.39, 3771.07, 2041.36, 15137.12, 448401.32, 13482.00, 12676.13, 6733.70, 8665.53, 7223.27, 1345.45, 1851.18, 776.42, 3838.26, 210110.19, 3949.18, 4079.95, 2077.15, 2998.35, 2656.17)
+traffic <- data.frame(timepoint, trafficgroup, trafficnum)
+
+# 把两个画在一张图
+p1a_traffic <- ggplot(data = traffic) +
+    geom_line(mapping = aes(x = timepoint, y = trafficnum, group = trafficgroup, color = trafficgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = trafficnum, group = 1, color = trafficgroup), size = 2) +
+    scale_color_manual(values = c("#7bccc4", "#bae4bc"), labels = c("PHA Use", "Total APP Use")) +
+labs(x = "Time", y = "Average Time Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.000015)
+p1a_traffic
+
+a <- traffic_time_APP[-5,]
+a_APPtraffic <- ggplot(data = a) +
+    geom_line(mapping = aes(x = timepoint, y = avg_traffic, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = avg_traffic, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Average Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.0004) +
+    scale_y_continuous(limits = c(0, 16000), breaks = seq(0, 16000, 4000))
+
+options(scipen = 200)
+a_PHAtraffic <- ggplot(data = a) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_avg_traffic, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_avg_traffic, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Use")) +
+    labs(x = "Time", y = "Average Traffic Used Per Person", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "bottom") +
+    theme(axis.title.x = element_text(vjust = -3)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.0012) +
+    scale_y_continuous(limits = c(0, 5000), breaks = seq(0, 5000, 1000))
+
+a_traffic_pro <- ggplot(data = a) +
+    geom_line(mapping = aes(x = timepoint, y = traffic_proportion, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = traffic_proportion, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("")) +
+    labs(x = "Time", y = "PHA/Total Traffic Proportion", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(axis.title.x = element_text(vjust = 0)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+scale_y_continuous(labels = scales:: percent, limits = c(0.2, 0.5), breaks = seq(0.2, 0.5, 0.1)) +
+    theme(legend.position = "none") +
+    coord_fixed(20)
+a_traffic_pro
+
+
+a_APPtraffic
+a_PHAtraffic
+
+
+
+
+```
+* Figure 1-d
+
+```{r}
+
+timepoint <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+PHA_active <- c(205, 195, 287, 317, 360, 357, 352, 348, 346, 342)
+PHA_created <- c(205, 12, 94, 32, 45, 7, 0, 2, 0, 1)
+APP_used <- c(1727, 1487, 2101, 2472, 12656, 12546, 11689, 10332, 10735, 9772)
+Other_created <- c(1397, 123, 503, 286, 4812, 103, 35, 27, 3, 7)
+
+APPnum <- data.frame(timepoint, APP_used, PHA_active, PHA_created, Other_created)
+
+usage <- ggplot(data = APPnum) +
+    geom_line(mapping = aes(x = timepoint, y = APP_used, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = APP_used, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Total APP Use")) +
+    labs(x = "Time", y = "Total APP Usage", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = 0)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.00055)
+
+active <- ggplot(data = APPnum) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_active, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_active, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("Active PHA")) +
+    labs(x = "Time", y = "Active PHA", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = 0)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.038)
+
+created <- ggplot(data = APPnum) +
+    geom_line(mapping = aes(x = timepoint, y = PHA_created, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = PHA_created, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#7bccc4"), labels = c("PHA Created")) +
+    labs(x = "Time", y = "PHA Created", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = 0)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.03)
+
+other_created <- ggplot(data = APPnum) +
+    geom_line(mapping = aes(x = timepoint, y = Other_created, group = 1, color = 'APP'), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+    geom_point(mapping = aes(x = timepoint, y = Other_created, group = 1, color = 'APP'), size = 2) +
+    scale_color_manual(values = c("#bae4bc"), labels = c("Other APP Created")) +
+    labs(x = "Time", y = "Other APP Created", color = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = 0)) +
+    theme(axis.title.y = element_text(vjust = 4)) +
+    coord_fixed(0.0013)
+
+
+usage
+active
+created
+other_created
+
+```
+
+# Figure 2
+
+## Age
+
+```{r warning = FALSE}
+
+timepoint <- c("20190501", "20191101", "20200501", "20201101", "20210501", "20211101", "20220501", "20221101", "20230501", "20231101")
+
+# age above 18
+age <- c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+")
+age_total <- c(75.8584, 83.6019, 85.8934, 84.4845, 80.7078, 71.2813, 65.9255, 62.3018, 56.9349, 54.8384, 52.8478)
+age_PHA <- c(14.4422, 15.6176, 16.1131, 15.9304, 15.4222, 14.0880, 13.2052, 12.5735, 11.7111, 11.3741, 10.9116)
+age_proportation <- c(0.1904, 0.1868, 0.1876, 0.1886, 0.1911, 0.1976, 0.2003, 0.2018, 0.2057, 0.2074, 0.2065)
+age_app <- data.frame(age, age_total, age_PHA, age_proportation)
+age_app$age <- factor(age_app$age, levels = c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+"))
+age_app$age_total <- as.numeric(age_app$age_total)
+age_app$age_PHA <- as.numeric(age_app$age_PHA)
+max(age_app$age_total)
+
+p <- ggplot(data = age_app) +
+    geom_bar(mapping = aes(x = age, y = age_total, fill = "age_total"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = age, y = age_PHA, fill = "age_PHA"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("age_total"= "#bae4bc", "age_PHA" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = age, y = age_proportation*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = age, y = age_proportation*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent)) +
+    labs(x = "Age", y = "Average APP Use", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.87, 0.89)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))
+p
+
+```
+
+
+
+## Gender
+
+```{r warning = FALSE}
+
+gender <- c("male", "female")
+gender_total <- c(81.5840, 79.3358)
+gender_PHA <- c(15.4830, 15.0148)
+gender_proportion <-c(0.1898, 0.1893)
+gender_proportion <- round(gender_proportion, 4)
+gender_app <- data.frame(gender, gender_total, gender_PHA, gender_proportion)
+min(gender_app$gender_proportion)
+max(gender_app$gender_proportion)
+
+p <- ggplot(data = gender_app) +
+    geom_bar(mapping = aes(x = gender, y = gender_total, fill = "gender_total"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = gender, y = gender_PHA, fill = "gender_PHA"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_fill_manual(values = c("gender_total" = "#bae4bc", "gender_PHA" = "#7bccc4"), labels = c( "PHA Use", "Total APP Use")) +
+    geom_line(mapping = aes(x = gender, y = gender_proportion*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) + 
+    geom_point(mapping = aes(x = gender, y = gender_proportion*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis=sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent)) +
+    labs(x = "Gender", y = "Average APP Use", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))  +
+    coord_fixed(0.04)
+p
+
+```
+
+## Income
+
+```{r warning = FALSE}
+
+income_ten <- c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10")
+income10_total <- c(65.34, 73.08, 76.22, 80.27, 81.81, 82.55, 83.67, 83.99, 90.68, 91.01)
+income10_PHA <- c(13.56, 14.85, 15.22, 16.01, 15.93, 15.35, 14.71, 14.93, 15.96, 15.77)
+income10_proportion <-c(0.207555386, 0.203274877, 0.199711648, 0.19942641, 0.194683141, 0.185895454, 0.175828709, 0.177818819, 0.175950034, 0.17326839)
+income10_proportion <- round(income10_proportion, 4)
+
+income10_app <- data.frame(income_ten, income10_total, income10_PHA, income10_proportion)
+
+income10_app$income_ten <- factor(income10_app$income_ten, levels = c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"))
+
+
+p_income10 <- ggplot(data = income10_app) +
+    geom_bar(mapping = aes(x = income_ten, y = income10_total, fill = "income_total"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = income_ten, y = income10_PHA, fill = "income_PHA"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("income_total"= "#bae4bc", "income_PHA" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = income_ten, y = income10_proportion*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = income_ten, y = income10_proportion*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent)) +
+    labs(x = "Income", y = "Average APP Use", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.11, 0.93)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3)) +
+    theme(legend.background = element_rect(fill=rgb(1,1,1,alpha=0.001)))
+
+p_income10
+
+```
+
+# Figure 3
+
+```{r}
+age_figure3 <- c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+", "19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+")
+age_proportion_figure3 <- c(0.1892, 0.1888, 0.1960, 0.2021, 0.2128, 0.2244, 0.2325, 0.2373,
+0.2410, 0.2485, 0.2460,0.1892, 0.1902, 0.1977, 0.2030, 0.2111, 0.2222, 0.2293, 0.2332, 0.2360, 0.2403, 0.2428, 0.2267, 0.2254, 0.2352, 0.2423, 0.2532, 0.2681, 0.2755, 0.2821, 0.2891, 0.2969, 0.2975, 0.2256, 0.2260, 0.2302, 0.2327, 0.2373, 0.2449, 0.2502, 0.2543, 0.2570, 0.2609, 0.2604, 0.1725, 0.1700, 0.1706, 0.1717, 0.1745, 0.1795, 0.1835, 0.1851, 0.1876, 0.1879, 0.1869, 0.1730, 0.1731, 0.1748, 0.1768, 0.1802, 0.1855, 0.1895, 0.1928, 0.1963, 0.1966, 0.1975, 0.1699, 0.1700, 0.1701, 0.1709, 0.1726, 0.1765, 0.1791, 0.1817, 0.1834, 0.1853, 0.1850, 0.1796, 0.1786, 0.1792, 0.1795, 0.1808, 0.1838, 0.1865, 0.1892, 0.1908, 0.1934, 0.1918, 0.1820, 0.1820, 0.1825, 0.1824, 0.1830, 0.1859, 0.1884, 0.1902, 0.1928, 0.1947, 0.1918, 0.1865, 0.1863, 0.1862, 0.1867, 0.1879, 0.1921, 0.1961, 0.2001, 0.2032, 0.2056, 0.2064)
+time_age_figure3 <- c("2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-11", "2019-11", "2019-11","2019-11","2019-11","2019-11","2019-11","2019-11","2019-11","2019-11","2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11","2023-05", "2023-05",  "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11")
+age_app_figure3 <- data.frame(age_figure3, age_proportion_figure3, time_age_figure3)
+age_app_figure3$age_figure3 <- factor(age_app_figure3$age_figure3, levels = c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+"))
+
+p <- ggplot(data = age_app_figure3) +
+     geom_line(aes(x = time_age_figure3, y = age_proportion_figure3, group = age_figure3, color = age_figure3), stat = 'identity', linewidth = 0.6) +
+     geom_point(aes(x = time_age_figure3, y = age_proportion_figure3, color = age_figure3), size = 2) +
+     scale_color_manual(values = c("#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#356d67","#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58", "black")) +
+     labs(x = "Time", y = "PHA/total Proportion of Each Age Group", fill = "") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom")+
+     theme(legend.text = element_text(size = 6.5)) +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     scale_y_continuous(labels = scales:: percent, limits = c(0.15, 0.30), breaks = seq(0.15, 0.30, 0.05)) +
+     theme(legend.title = element_blank()) +
+     guides(color = guide_legend(nrow = 1)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3))
+p
+
+```
+
+
+```{r}
+
+gender_figure3 <- c("male","male","male","male","male","male","male","male","male","male", "female",  "female",  "female",  "female",  "female",  "female",  "female",  "female",  "female", "female")
+gender_proportion_figure3 <- c(0.1985,	0.2002,	0.2379,	0.2310,	0.1711,	0.1757,	0.1707,	0.1809,	0.1836,	0.1884, 0.1938,	0.1937, 0.2341, 0.2316,	0.1747,	0.1783,	0.1728,	0.1788,	0.1823, 	0.1868)
+time_gender_figure3 <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11", "2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+gender_app_figure3 <- data.frame(gender_figure3, gender_proportion_figure3, time_gender_figure3)
+
+p <- ggplot(data = gender_app_figure3) +
+     geom_line(aes(x = time_gender_figure3, y = gender_proportion_figure3, group = gender_figure3, color = gender_figure3), stat = 'identity', linewidth = 1) +
+     scale_color_manual(values = c("#bae4bc", "#7bccc4"), labels = c("female", "male")) +
+     geom_point(aes(x = time_gender_figure3, y = gender_proportion_figure3, color = gender_figure3), size = 2) +
+     labs(x = "Time", y = "PHA/Total Proportion of Each Gender Group", color = "", size = 20) +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     scale_y_continuous(labels = scales:: percent, limits = c(0.15, 0.25), breaks = seq(0.15, 0.25, 0.05)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3))
+p
+
+```
+
+
+```{r}
+
+income_ten <- c("tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10")
+
+income_ten <- c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10")
+
+income10_app$income_ten <- factor(income10_app$income_ten, levels = c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"))
+
+# income10_figure3 <- c("tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10","tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10", "tier1", "tier2","tier3", "tier4", "tier5", "tier6", "tier7", "tier8", "tier9", "tier10")
+
+income10_figure3 <- c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10","level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10")
+
+income10_proportion_figure3 <- c(0.2342, 0.2237, 0.2180, 0.2149, 0.2118, 0.1971, 0.1695, 0.1770, 0.1664, 0.1667, 0.2314, 0.2267, 0.2157, 0.2175, 0.2126, 0.1972, 0.1764, 0.1749, 0.1701, 0.1702, 0.2747, 0.2707, 0.2655, 0.2601, 0.2558, 0.2516, 0.2111, 0.2128, 0.2066, 0.1967, 0.2502, 0.2465, 0.2422, 0.2409, 0.2357, 0.2274, 0.2178, 0.2204, 0.2146, 0.2118, 0.1888, 0.1847, 0.1835, 0.1794, 0.1768, 0.1681, 0.1633, 0.1617, 0.1614, 0.1579, 0.1925, 0.1883, 0.1871, 0.1838, 0.1834, 0.1735, 0.1641, 0.1667, 0.1642, 0.1623, 0.1819, 0.1800, 0.1783, 0.1770, 0.1755, 0.1632, 0.1651, 0.1621, 0.1633, 0.1605, 0.1910, 0.1888, 0.1863, 0.1843, 0.1821, 0.1726, 0.1716, 0.1716, 0.1709, 0.1693, 0.1950, 0.1899, 0.1888, 0.1885, 0.1843, 0.1794, 0.1732, 0.1748, 0.1720, 0.1719, 0.2026, 0.1960, 0.1939, 0.1939, 0.1884, 0.1854, 0.1753, 0.1783, 0.1756, 0.1762) 
+
+
+time_income10_figure3 <- c("2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-05", "2019-11", "2019-11", "2019-11","2019-11","2019-11","2019-11","2019-11","2019-11","2019-11","2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-05", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2021-11", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-05", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11", "2022-11","2023-05", "2023-05",  "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-05", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11", "2023-11")
+income10_app_figure3 <- data.frame(income10_figure3, income10_proportion_figure3, time_income10_figure3)
+income10_app_figure3$income10_figure3 <- factor(income10_app_figure3$income10_figure3, levels = c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"))
+
+summary(income10_app_figure3$income10_proportion_figure3)
+
+p <- ggplot(data = income10_app_figure3) +
+     geom_line(aes(x = time_income10_figure3, y = income10_proportion_figure3, group = income10_figure3, color = income10_figure3), stat = 'identity', linewidth = 0.6) +
+     geom_point(aes(x = time_income10_figure3, y = income10_proportion_figure3, color = income10_figure3), size = 2) +
+     scale_color_manual(values = c("black", "#081d58", "#253494", "#225ea8", "#1d91c0", "#41b6c4", "#356d67", "#7fcdbb", "#c7e9b4", "#edf8b1" )) +
+     labs(x = "Time", y = "PHA/total Proportion of Each Income Group", fill = "") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom")+
+     theme(legend.text = element_text(size = 6.5)) +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     scale_y_continuous(labels = scales:: percent, limits = c(0.15, 0.30), breaks = seq(0.15, 0.30, 0.05)) +
+     theme(legend.title = element_blank()) +
+     guides(color = guide_legend(nrow = 1)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3))
+p
+
+
+```
+
+
+# Figure 5
+
+## Mechanism test 1
+
+### Differences in Diffusion Processes
+
+```{r}
+
+# mechanism test 0929
+
+
+## original PHA/APP - time
+
+### age
+
+original_PHA_age <- data.frame(
+  timepoint = c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11","2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11"),
+  age = c(31.0085, 31.1309, 30.9441, 31.1677, 31.2046, 31.4288, 31.2307, 31.3571, 31.3815, 31.3148,
+          31.3710, 31.4913, 31.4098, 31.3689, 31.5381, 31.6991, 31.5471, 31.7073, 31.6939, 31.6658),
+  APPgroup = c("Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA",
+               "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP"))
+
+original_PHA_age$APPgroup <- factor(original_PHA_age$APPgroup, levels = c("Original Other APP", "Original PHA"))
+
+
+original_PHA_ageline <- ggplot(original_PHA_age) +
+  geom_line(mapping = aes(x = timepoint, y = age, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = age, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("Original Other  APP", "Original PHA")) +
+  labs(title = "", x = "Time", y = "Average User Age") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(8)
+
+
+
+
+### gender
+original_PHA_gender <- data.frame(
+  timepoint = c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11","2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11"),
+  gender = c(0.3479, 0.3452, 0.3504, 0.3338, 0.3391, 0.3398, 0.3529, 0.3254, 0.3245, 0.3249,
+             0.3195, 0.3180, 0.3159, 0.3210, 0.3191, 0.3144, 0.3145, 0.3062, 0.3048, 0.3088),
+  APPgroup = c("Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA",
+               "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP"))
+
+original_PHA_gender$APPgroup <- factor(original_PHA_gender$APPgroup, levels = c("Original Other APP", "Original PHA"))
+
+
+
+original_PHA_genderline <- ggplot(original_PHA_gender) +
+  geom_line(mapping = aes(x = timepoint, y = gender, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = gender, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("Original Other APP", "Original PHA")) +
+  labs(title = "", x = "Time", y = "Average User Female Proportion") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     scale_y_continuous(labels = scales:: percent) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(130)
+
+
+
+### income
+
+original_PHA_income <- data.frame(
+  timepoint = c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11","2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11"),
+  income = c(6.1290, 6.0048, 6.1143, 6.1123, 6.1779, 6.1043, 6.1449, 5.9385, 5.9947, 5.9996,
+             6.0655, 6.0320, 6.0530, 6.1748, 6.1519, 6.0721, 6.0199, 5.9840, 5.9881, 6.0937),
+  APPgroup = c("Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA", "Original PHA",
+               "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP", "Original Other APP"))
+
+original_PHA_income$APPgroup <- factor(original_PHA_income$APPgroup, levels = c("Original Other APP", "Original PHA"))
+
+
+original_PHA_incomeline <- ggplot(original_PHA_income) +
+  geom_line(mapping = aes(x = timepoint, y = income, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = income, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("Original Other APP", "Original PHA")) +
+  labs(title = "", x = "Time", y = "Average User Income level") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(25)
+
+
+original_PHA_ageline
+original_PHA_genderline
+original_PHA_incomeline
+
+
+```
+
+```{r}
+## 加权平均只保留前三年
+
+
+
+new_age_weight <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"),
+  age = c(32.9788, 33.0746, 33.6454, 34.3409, 34.7502, 35.4123, 36.0204, 36.3285, 36.5595, 
+31.2413, 31.2100, 31.3032, 31.3228, 31.3367, 31.4770, 31.4285, 31.4411, 31.3428),
+  APPgroup = c("New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA",
+               "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP"))
+
+new_age_weight$APPgroup <- factor(new_age_weight$APPgroup, levels = c("New Other APP", "New PHA"))
+
+
+
+new_age_weightline <- ggplot(new_age_weight) +
+  geom_line(mapping = aes(x = timepoint, y = age, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = age, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("New Other APP", "New PHA")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Age") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(1.12)
+
+
+
+### gender
+new_gender_weight <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"),
+  gender = c(0.3623, 0.3507, 0.3478, 0.3309, 0.3467, 0.3431, 0.3539, 0.3193, 0.3504,
+0.3113, 0.3187, 0.3212, 0.3164, 0.3237, 0.3194, 0.3189, 0.3114, 0.3137),
+  APPgroup = c("New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA",
+               "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP"))
+
+new_gender_weight$APPgroup <- factor(new_gender_weight$APPgroup, levels = c("New Other APP", "New PHA"))
+
+
+new_gender_weightline <- ggplot(new_gender_weight) +
+  geom_line(mapping = aes(x = timepoint, y = gender, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = gender, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("New Other APP", "New PHA")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Female Proportion") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     scale_y_continuous(labels = scales:: percent) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(120)
+
+
+### income
+
+new_income_weight <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"),
+  income = c(6.2238, 6.3516, 6.3390, 6.1906, 6.2542, 6.1760, 6.2319, 6.2048, 5.9701, 
+6.2656, 6.3116, 6.3111, 6.2614, 6.2200, 6.1423, 6.1815, 6.2684, 5.9793),
+  APPgroup = c("New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA", "New PHA",
+               "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP", "New Other APP"))
+
+new_income_weight$APPgroup <- factor(new_income_weight$APPgroup, levels = c("New Other APP", "New PHA"))
+
+
+
+new_income_weightline <- ggplot(new_income_weight) +
+  geom_line(mapping = aes(x = timepoint, y = income, group = APPgroup, color = APPgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = income, group = APPgroup, color = APPgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#c7e9b4"), labels = c("New Other APP", "New PHA")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Income level") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(15)
+
+
+new_age_weightline
+new_gender_weightline
+new_income_weightline
+
+
+```
+
+
+```{r}
+
+## cohort
+## 只保留前三个time point
+### newly created PHA
+
+### age
+
+new_PHA_age <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  age = c(33.2413, 	33.6706, 	34.1119, 	34.3628, 	35.7389, 	35.8350, 	36.0685, 	36.4784, 	36.5595, 
+33.0874, 	33.1280, 	33.7692, 	34.5817, 	34.5450, 	35.4058, 	35.8797, 	36.3095, 
+32.6055, 	32.7353, 	33.1641, 	33.6996, 	34.9609, 	35.2883, 	36.3750),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+
+new_PHA_age$PHAgroup <- factor(new_PHA_age$PHAgroup , levels = c("2019-11", "2020-05", "2020-11", "2021-05", "2021-11"))
+
+new_PHA_ageline <- ggplot(new_PHA_age) +
+  geom_line(mapping = aes(x = timepoint, y = age, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = age, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Age of PHA") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(1.3)
+
+new_PHA_ageline
+
+
+
+### gender
+
+new_PHA_gender <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  gender = c(0.3576, 0.3574, 0.3641, 0.3122, 0.3709, 0.3803, 0.3797, 0.3557, 0.3504,
+          0.3557, 0.3271, 0.3193, 0.3062, 0.3254,	0.3171, 0.3283, 0.3147, 
+          0.3813, 0.4107, 0.4173, 0.4019, 0.3947, 0.3993, 0.4126),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+new_PHA_gender$PHAgroup <- factor(new_PHA_gender$PHAgroup , levels = c("2019-11", "2020-05", "2020-11"))
+
+
+
+new_PHA_genderline <- ggplot(new_PHA_gender) +
+  geom_line(mapping = aes(x = timepoint, y = gender, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = gender, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Female Proportion of PHA") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     scale_y_continuous(labels = scales:: percent) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(45)
+
+new_PHA_genderline
+
+### income
+
+new_PHA_income <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  income = c(5.3708, 5.5423, 5.4426, 5.3687, 5.6704, 5.7227, 5.9881, 5.8185, 5.9701, 
+             6.3533, 6.5168, 6.5172, 6.3229, 6.2970, 6.2439, 6.2124, 6.2536, 
+             6.1671, 6.1862, 6.1688, 6.1163, 6.3360, 6.1481, 6.3644),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+new_PHA_income$PHAgroup <- factor(new_PHA_income$PHAgroup , levels = c("2019-11", "2020-05", "2020-11", "2021-05", "2021-11"))
+
+
+
+new_PHA_incomeline <- ggplot(new_PHA_income) +
+  geom_line(mapping = aes(x = timepoint, y = income, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = income, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Income Level of PHA") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(4.5)
+
+new_PHA_incomeline
+
+```
+
+
+
+```{r}
+
+## cohort
+## 只保留前三个time point
+### newly created Other APP
+
+### age
+new_otherAPP_age <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  age = c(31.2170, 31.2729, 31.4487, 31.4357, 31.5862, 31.3296, 31.3523, 31.9077, 31.3428, 
+          31.2031, 31.0898, 31.1455, 31.2099, 31.2135, 31.4296, 31.4533, 31.3180, 
+          31.3159, 31.3831, 31.5025, 31.4617, 31.4324, 31.6212, 31.4208),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+
+new_otherAPP_age$PHAgroup <- factor(new_otherAPP_age$PHAgroup , levels = c("2019-11", "2020-05", "2020-11"))
+
+new_otherAPP_ageline <- ggplot(new_otherAPP_age) +
+  geom_line(mapping = aes(x = timepoint, y = age, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = age, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Age of Other APP") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(6)
+
+new_otherAPP_ageline
+
+
+### gender
+new_otherAPP_gender <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  gender = c(0.3096, 0.3138, 0.3296, 0.3369, 0.3153, 0.3138, 0.3111, 0.3280, 0.3137, 
+             0.3055, 0.3133, 0.3171, 0.3117, 0.3182, 0.3101, 0.3220, 0.3071, 
+             0.3218, 0.3301, 0.3244, 0.3151, 0.3368, 0.3375, 0.3171),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+
+new_otherAPP_gender$PHAgroup <- factor(new_otherAPP_gender$PHAgroup , levels = c("2019-11", "2020-05", "2020-11", "2021-05", "2021-11"))
+
+new_otherAPP_genderline <- ggplot(new_otherAPP_gender) +
+  geom_line(mapping = aes(x = timepoint, y = gender, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = gender, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Female Proportion of Other APP") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     scale_y_continuous(labels = scales:: percent) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(140)
+
+new_otherAPP_genderline
+
+
+### income
+
+new_otherAPP_income <- data.frame(
+  timepoint = c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9","t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8","t1", "t2", "t3", "t4", "t5", "t6", "t7"),
+  income = c(5.9493, 6.0477, 6.1015, 6.1552, 6.0524, 6.1304, 6.0431, 6.1792, 5.9793, 
+             6.3356, 6.3991, 6.4045, 6.2850, 6.2624, 6.1201, 6.1455, 6.2919, 
+             6.2882, 6.2817, 6.2476, 6.2688, 6.2229, 6.1846, 6.3027),
+  PHAgroup = c("2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2019-11", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-05", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11", "2020-11"))
+
+new_otherAPP_income$PHAgroup <- factor(new_otherAPP_income$PHAgroup , levels = c("2019-11", "2020-05", "2020-11"))
+
+new_otherAPP_incomeline <- ggplot(new_otherAPP_income) +
+  geom_line(mapping = aes(x = timepoint, y = income, group = PHAgroup, color = PHAgroup), stat = 'identity', linewidth = 1, show.legend = TRUE) +
+  geom_point(mapping = aes(x = timepoint, y = income, group = PHAgroup, color = PHAgroup), size = 2) +
+  scale_color_manual(values = c("#1d91c0", "#7bccc4", "#c7e9b4"), labels = c("2019-11", "2020-05", "2020-11")) +
+  labs(title = "", x = "Diffuse Time", y = "Average User Income Level of Other APP") +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     guides(color = guide_legend(title = NULL)) +
+     coord_fixed(10)
+
+
+new_otherAPP_incomeline
+
+
+```
+
+## Mechanism test 2
+
+### Phone price difference test
+
+```{r}
+
+library(dplyr)
+
+iphoneprice <- read.csv("iphoneprice.csv")
+androidprice <- read.csv("androidprice.csv")
+
+price_data <- data.frame(rbind(iphoneprice, androidprice))
+
+group_by(price_data, system) %>% summarise(count = n(),
+                                           mean = mean(price),
+                                           sd = sd(price))
+
+with(price_data, shapiro.test(price[system == 'iOS']))
+with(price_data, shapiro.test(price[system == 'Android']))
+# p < 0.05, non-normal distribution
+
+# res.ftest <- var.test(price ~ system, data = price_data)
+# res.ftest
+
+res <- wilcox.test(price ~ system, data = price_data, var.equal = TRUE)
+res
+
+
+p <- ggplot(price_data, aes(x = system, y = price, fill = system)) + 
+    geom_boxplot(width = 0.45, color =  "#081d58") +
+    scale_fill_manual(values = c("#bae4bc",  "#7bccc4")) +
+    labs(x = "System", y = "Phone Price", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))  +
+    coord_fixed(0.00009)
+p
+
+
+```
+
+
+
+
+```{r}
+
+# test mechanism of phone system
+library(ggplot2)
+
+system <- c("ios", "Android")
+system_total <- c(74.2097, 69.2331)
+system_PHA <- c(14.7622, 15.4509 )
+system_proportion <-c(0.1989, 0.2232)
+system_proportion <- round(system_proportion, 4)
+system_app <- data.frame(system, system_total, system_PHA, system_proportion)
+min(system_app$system_proportion)
+max(system_app$system_proportion)
+
+
+p_system <- ggplot(data = system_app) +
+    geom_bar(mapping = aes(x = system, y = system_total, fill = "system_total"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = system, y = system_PHA, fill = "system_PHA"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_fill_manual(values = c("system_total" = "#bae4bc", "system_PHA" = "#7bccc4"), labels = c(  "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = system, y = system_proportion*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) + 
+    geom_point(mapping = aes(x = system, y = system_proportion*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis=sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent)) +
+    labs(x = "System", y = "Average APP Use", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(1.4, 0.95)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))  +
+    coord_fixed(0.04)
+
+p_system
+
+
+system_figure3 <- c("ios","ios", "ios","ios", "ios","ios", "ios","ios", "ios","ios",
+                    "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android")
+  system_proportion_figure3 <- c(0.1167, 0.1235, 0.1193, 0.2530, 0.2347, 0.2245, 0.2048, 0.2150, 0.2576, 0.2369,
+                                 0.1613, 0.1673, 0.1571, 0.2755, 0.2485, 0.2417, 0.2195, 0.2217, 0.2835, 0.2575)
+time_system_figure3 <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11", "2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+system_system_figure3 <- data.frame(system_figure3, system_proportion_figure3, time_system_figure3)
+
+
+p_systempro <- ggplot(data = system_system_figure3) +
+     geom_line(aes(x = time_system_figure3, y = system_proportion_figure3, group = system_figure3, color = system_figure3), stat = 'identity', linewidth = 1) +
+     scale_color_manual(values = c("#bae4bc", "#7bccc4"), labels = c("Android", "ios")) +
+     geom_point(aes(x = time_system_figure3, y = system_proportion_figure3, color = system_figure3), size = 2) +
+     labs(x = "Time", y = "PHA/Total Proportion of Each Phone System Group", color = "", size = 20) +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     scale_y_continuous(labels = scales:: percent, limits = c(0.10, 0.30), breaks = seq(0.10, 0.30, 0.05)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     coord_fixed(30)
+p_systempro
+
+
+
+system_figure3 <- c("ios","ios", "ios","ios", "ios","ios", "ios","ios", "ios","ios",
+                    "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android")
+system_num <- c(226093, 219987, 218684, 212514, 217384, 205646, 225892, 231092, 234769, 234349,
+                339502, 345608, 346911, 353081, 348211, 359949, 339703, 334503, 330826, 331246)
+time_system_num <- c("2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11", "2019-05", "2019-11", "2020-05", "2020-11", "2021-05", "2021-11", "2022-05", "2022-11", "2023-05", "2023-11")
+system_system_num <- data.frame(system_figure3, system_num, time_system_num)
+
+p_systemnum <- ggplot(data = system_system_num) +
+     geom_line(aes(x = time_system_num, y = system_num, group = system_figure3, color = system_figure3), stat = 'identity', linewidth = 1) +
+     scale_color_manual(values = c("#bae4bc", "#7bccc4"), labels = c("Android", "ios")) +
+     geom_point(aes(x = time_system_num, y = system_num, color = system_figure3), size = 2) +
+     labs(x = "Time", y = "User Num of Each Phone System Group", color = "", size = 20) +
+     theme_bw() +
+     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+     theme(legend.position = "bottom") +
+     theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+     theme(axis.title.x = element_text(vjust = -3)) +
+     theme(axis.title.y = element_text(vjust = 3)) +
+     coord_fixed(0.000035)
+p_systemnum
+
+```
+
+```{r}
+# see the PHA usage pattern in ios and Android systems separately
+library(ggplot2)
+
+# age
+## ios
+
+age_ios <- c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+")
+age_total_ios <- c(88.0214, 88.4723, 86.4620, 83.5201, 77.7672, 70.1983, 65.6066, 60.2965, 56.2419, 52.1109, 54.9440)
+age_PHA_ios <- c(15.1824, 15.2535, 14.9111, 14.4091, 13.5250, 12.3290, 11.6435, 10.7802, 10.1211, 9.4944, 9.8763)
+age_proportation_ios <- c(0.1725, 0.1724, 0.1725, 0.1725, 0.1739, 0.1756, 0.1775, 0.1788, 0.1800, 0.1822, 0.1798)
+age_app_ios <- data.frame(age_ios, age_total_ios, age_PHA_ios, age_proportation_ios)
+age_app_ios$age_ios <- factor(age_app_ios$age_ios, levels = c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+"))
+age_app_ios$age_total_ios <- as.numeric(age_app_ios$age_total_ios)
+age_app_ios$age_PHA_ios <- as.numeric(age_app_ios$age_PHA_ios)
+max(age_app_ios$age_total_ios)
+
+p_age_ios <- ggplot(data = age_app_ios) +
+    geom_bar(mapping = aes(x = age_ios, y = age_total_ios, fill = "age_total_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = age_ios, y = age_PHA_ios, fill = "age_PHA_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("age_total_ios"= "#bae4bc", "age_PHA_ios" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = age_ios, y = age_proportation_ios*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = age_ios, y = age_proportation_ios*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 90), breaks = seq(0, 90, 30)) +
+    labs(x = "Age", y = "Average APP Use of iOS User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.87, 0.89)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))
+
+
+## Android
+
+age_Android <- c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+")
+age_total_Android <- c(80.7136, 83.0622, 81.6213, 78.7036, 72.4613, 65.1915, 59.2713, 55.7921, 52.9216, 51.9835, 48.3903)
+age_PHA_Android <- c(16.0247, 16.3610, 16.1279, 15.6263, 14.7081, 13.5985, 12.6285, 12.0297, 11.5213, 11.3057, 10.6617)
+age_proportation_Android <- c(0.1985, 0.1970, 0.1976, 0.1985, 0.2030, 0.2086, 0.2131, 0.2156, 0.2177, 0.2175, 0.2203)
+age_app_Android <- data.frame(age_Android, age_total_Android, age_PHA_Android, age_proportation_Android)
+age_app_Android$age_Android <- factor(age_app_Android$age_Android, levels = c("19-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70+"))
+age_app_Android$age_total_Android <- as.numeric(age_app_Android$age_total_Android)
+age_app_Android$age_PHA_Android <- as.numeric(age_app_Android$age_PHA_Android)
+max(age_app_Android$age_total_Android)
+
+
+p_age_Android <- ggplot(data = age_app_Android) +
+    geom_bar(mapping = aes(x = age_Android, y = age_total_Android, fill = "age_total_Android"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = age_Android, y = age_PHA_Android, fill = "age_PHA_Android"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("age_total_Android"= "#bae4bc", "age_PHA_Android" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = age_Android, y = age_proportation_Android*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = age_Android, y = age_proportation_Android*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 90), breaks = seq(0, 90, 30)) +
+    labs(x = "Age", y = "Average APP Use of Android User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.87, 0.89)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))
+
+p_age_ios
+p_age_Android
+
+summary(age_app_ios)
+summary(age_app_Android)
+
+
+```
+
+
+```{r}
+
+# see the PHA usage pattern in ios and Android systems separately
+library(ggplot2)
+
+# gender
+
+gender_ios <- c("male", "female")
+gender_total_ios <- c(85.5736, 85.3010)
+gender_PHA_ios <- c(14.7357, 14.8014)
+gender_proportion_ios <-c(0.1722, 0.1735)
+gender_proportion_ios <- round(gender_proportion_ios, 4)
+gender_app_ios <- data.frame(gender_ios, gender_total_ios, gender_PHA_ios, gender_proportion_ios)
+min(gender_app_ios$gender_proportion_ios)
+max(gender_app_ios$gender_proportion_ios)
+
+p_gender_ios <- ggplot(data = gender_app_ios) +
+    geom_bar(mapping = aes(x = gender_ios, y = gender_total_ios, fill = "gender_total_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = gender_ios, y = gender_PHA_ios, fill = "gender_PHA_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_fill_manual(values = c("gender_total_ios" = "#bae4bc", "gender_PHA_ios" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = gender_ios, y = gender_proportion_ios*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) + 
+    geom_point(mapping = aes(x = gender_ios, y = gender_proportion_ios*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis=sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 90), breaks = seq(0, 90, 30)) +
+    labs(x = "Gender", y = "Average APP Use of iOS User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))  +
+    coord_fixed(0.04)
+
+
+gender_Android <- c("male", "female")
+gender_total_Android <- c(79.4541, 73.9604)
+gender_PHA_Android <- c(15.7548, 15.0228)
+gender_proportion_Android <-c(0.1983, 0.2031)
+gender_proportion_Android <- round(gender_proportion_Android, 4)
+gender_app_Android <- data.frame(gender_Android, gender_total_ios, gender_PHA_Android, gender_proportion_Android)
+min(gender_app_Android$gender_proportion_Android)
+max(gender_app_Android$gender_proportion_Android)
+
+p_gender_Android <- ggplot(data = gender_app_Android) +
+    geom_bar(mapping = aes(x = gender_Android, y = gender_total_Android, fill = "gender_total_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = gender_Android, y = gender_PHA_Android, fill = "gender_PHA_Android"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_fill_manual(values = c("gender_total_ios" = "#bae4bc", "gender_PHA_Android" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = gender_Android, y = gender_proportion_Android*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) + 
+    geom_point(mapping = aes(x = gender_Android, y = gender_proportion_Android*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis=sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 90), breaks = seq(0, 90, 30)) +
+    labs(x = "Gender", y = "Average APP Use of Android User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = "none") +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))  +
+    coord_fixed(0.04)
+
+
+summary(gender_app_ios)
+summary(gender_app_Android)
+
+# legend.position = c(1.4, 0.95)
+
+
+p_gender_ios
+p_gender_Android
+
+```
+
+```{r}
+
+income_Android <- c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10")
+income_total_Android <- c(62.6873, 72.3696, 77.1830, 79.9983, 83.6065, 83.9639, 88.7332, 87.7622, 88.1697, 86.8586)
+income_PHA_Android <- c(13.1744, 14.8024, 15.5277, 15.8875, 16.3702, 16.4209, 17.0744, 16.7898, 16.8358, 16.0774)
+income_proportion_Android <-c(0.2102, 0.2045, 0.2012, 0.1986, 0.1958, 0.1956, 0.1924, 0.1913, 0.1909, 0.1851)
+income_proportion_Android <- round(income_proportion_Android, 4)
+
+
+income_app_Android <- data.frame(income_Android, income_total_Android, income_PHA_Android, income_proportion_Android)
+
+income_app_Android$income_Android <- factor(income_app_Android$income_Android, levels = c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"))
+
+income_ios <- c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10")
+income_total_ios <- c(46.4337, 51.2193, 59.8241, 69.6378, 76.7245, 80.6014, 83.3526, 84.9151, 88.4309, 91.8141)
+income_PHA_ios <- c(8.7074, 9.6945, 10.9751, 12.4844, 13.4710, 14.0192, 14.3953, 14.6677, 15.2016, 15.7602)
+income_proportion_ios <-c(0.1875, 0.1893, 0.1835, 0.1793, 0.1756, 0.1739, 0.1727, 0.1727, 0.1719, 0.1717)
+income_proportion_ios <- round(income_proportion_ios, 4)
+
+
+income_app_ios <- data.frame(income_ios, income_total_ios, income_PHA_ios, income_proportion_ios)
+
+income_app_ios$income_ios <- factor(income_app_ios$income_ios, levels = c("level1", "level2","level3", "level4", "level5", "level6", "level7", "level8", "level9", "level10"))
+
+
+
+p_income_Android <- ggplot(data = income_app_Android) +
+    geom_bar(mapping = aes(x = income_Android, y = income_total_Android, fill = "income_total_Android"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = income_Android, y = income_PHA_Android, fill = "income_PHA_Android"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("income_total_Android"= "#bae4bc", "income_PHA_Android" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = income_Android, y = income_proportion_Android*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = income_Android, y = income_proportion_Android*250, group = 1), color = '#2b8cbe') +
+  scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 93), breaks = seq(0, 93, 30)) +
+    labs(x = "Income", y = "Average APP Use of Android User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.11, 0.892)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))
+
+
+p_income_ios <- ggplot(data = income_app_ios) +
+    geom_bar(mapping = aes(x = income_ios, y = income_total_ios, fill = "income_total_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    geom_bar(mapping = aes(x = income_ios, y = income_PHA_ios, fill = "income_PHA_ios"), stat = 'identity', width = 0.75, show.legend = TRUE) +
+    scale_fill_manual(values = c("income_total_ios"= "#bae4bc", "income_PHA_ios" = "#7bccc4"), labels = c( "PHA Use", "Other APP Use")) +
+    geom_line(mapping = aes(x = income_ios, y = income_proportion_ios*250, group = 1), stat = 'identity', color = '#2b8cbe', linewidth = 1) +
+    geom_point(mapping = aes(x = income_ios, y = income_proportion_ios*250, group = 1), color = '#2b8cbe') +
+    scale_y_continuous(sec.axis = sec_axis(~.*0.004, name = "PHA/Total Proportion", labels=scales::percent), limits = c(0, 93), breaks = seq(0, 93, 30)) +
+    labs(x = "Income", y = "Average APP Use of iOS User", fill = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(axis.title.x = element_text(size = 10), axis.title.y = element_text(size = 10)) +
+    theme(legend.position = c(0.11, 0.892)) +
+    theme(axis.title.x = element_text(vjust = -1)) +
+    theme(axis.title.y = element_text(vjust = 3)) +
+    theme(axis.title.y.right = element_text(vjust = 3))
+
+
+p_income_ios
+
+
+```
