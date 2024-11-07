@@ -92,6 +92,9 @@ JOIN shenzhen_people_phoneprice_10monthavg_level sp on sp.PHA_qui = saup.PHA_qui
 GROUP bY saup.date, sa.lcode, phoneprice_level
 HAVING saup.date = 20190501
 
+
+
+
 SELECT saup.date,
        sa.lcode,
        phoneprice_level,

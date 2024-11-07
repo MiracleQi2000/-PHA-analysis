@@ -294,7 +294,7 @@ GROUP BY PHA_num
 
 -- PHA list 应该包含全部567101人，没有匹配到的记为0
 
-
+-- 每个人用了多少个PHA
 DROP TABLE IF EXISTS shenzhen_PHAuse_20190501_all;
 CREATE TABLE shenzhen_PHAuse_20190501_all AS
 SELECT sauf.PHA_qui,

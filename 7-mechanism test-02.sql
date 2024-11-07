@@ -38,7 +38,7 @@ WHERE createdate = 20191101
 AND saupm.date IN (20190501, 20191101, 20200501, 20201101, 20210501, 20211101, 20220501, 20221101, 20230501, 20231101)
 GROUP BY pha, saupm.date, age
 
-DROP TABLE IF EXISTS eachPHA_demographics_created20191101_cell;
+DROP TABLE IF EXISTS eachPHA_dethemographics_created20191101_cell;
 CREATE TABLE eachPHA_demographics_created20191101_cell AS
 SELECT pha,
        saupm.date,
