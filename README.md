@@ -39,7 +39,7 @@ The database is the phone use record of the uesrs of wireless carrier China Unic
 
 > Describe the distribution of the number of users and average APP usage of each phone brand and type at each time point;
 
-6-Mechanism test includes
+6-Mechanism test-01
 
 > Define Other APP list;
 
@@ -49,9 +49,21 @@ The database is the phone use record of the uesrs of wireless carrier China Unic
 
 7-mechanism test-02
 
-8-mechanism test-03
+> X Panel error
+
+8-mechanism test-03√
+
+> Quantify the three dimensions
+
+> Draw figures of the average user age/female proportion/income level at each time point of the original/newly created PHA/APP
 
 9-mechanism test - top use
+
+> Extract the user number of each PHA/APP for each age/gender/income group;
+
+> Figure out the top 50 use of each group;
+
+> Build relationship between group and PHA/APP category
 
 10-mechanism test - phone system
 
